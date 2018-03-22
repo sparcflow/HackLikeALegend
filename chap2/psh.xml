@@ -15,7 +15,7 @@
     TaskFactory="CodeTaskFactory"
 AssemblyFile="C:\Windows\Microsoft.Net\Framework\v4.0.30319\Microsoft.Build.Tasks.v4.0.dll" >
 <Task>
-      <Reference Include="System.Management.Automation.dll"/>
+      <Reference Include="System.Management.Automation"/>
 	  
       <Code Type="Class" Language="cs">
         <![CDATA[
