@@ -11,7 +11,7 @@ if len(sys.argv) < 2:
 
 API_URL = "https://censys.io/api/v1"
 UID = "CENSYS_UID"
-SECRET = "CENSYS_SECREt"
+SECRET = "CENSYS_SECRET"
 params = {"query" : sys.argv[1]}
 subdomains = []
 print "[+] Connecting to Censys"
