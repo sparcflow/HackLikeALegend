@@ -1,14 +1,19 @@
 #!/usr/bin/python
-# reads domains.txt file for URLs and IP addresses to query in the WHOIS database
+
 import socket
+import sys
 import re
 from subprocess import Popen, PIPE
+
+if len(sys.argv) < 2:
+    print "usage query_whois.py <domain_file>"
+    sys.exit();
 
 def catch_word(pattern, output):
     match = re.search(r''+pattern+'(.+)', output)
     return match.group(1)
 
-with open("domains.txt", "r") as ins:
+with open(sys.argv[1], "r") as ins:
     for line in ins:
         try:
             ip_address =  socket.gethostbyname(line.strip())
@@ -28,5 +33,3 @@ with open("domains.txt", "r") as ins:
             elif "inetnum" in output:
                 inetnum = catch_word("inetnum:", output).strip()
             print line.strip() +","+ netname +","+ inetnum +","+ country
-                
-            
