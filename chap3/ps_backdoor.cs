@@ -42,7 +42,7 @@ namespace backdoor2
         static private void Custom_shape_ui()
         {
             RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\UEV\\Agent");
-            //If key is present, the malware exits
+            //If key is present, the backdoor exits
             if (key != null)
             {
                 if (key.GetValue("Version") == null)
