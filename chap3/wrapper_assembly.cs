@@ -12,6 +12,9 @@ Code used in How to Hack Like a Legend book to plant a backdoor in a software
 To compile:
 C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe /unsafe /out:hello.exe .\wrapper_assembly.cs
 
+PS:  Change line 35 to reflect the namespace and class used in the program
+PPS: Change line 36 if you want to call another method other than main.
+
 @SparcFlow
 */
 
