@@ -3,7 +3,7 @@ import censys.certificates
 
 API_URL = "https://censys.io/api/v1"
 
-logging.basicConfig()
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -27,6 +27,7 @@ def show_censys_data(domain, uid, secret):
             if close_to_domain(d, domain, domain_array):
                 domains.add(d)
 
+    logger.info("Found {} unique domains".format(len(domains)))
     for d in domains:
         print(d)
 
