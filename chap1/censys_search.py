@@ -1,45 +1,49 @@
-#!/usr/bin/python
-# Replace the UID and SECRET variables with your own API keys from censys.io
-
-import sys
-import json
-import requests
-
-if len(sys.argv) < 2:
-    print "usage " + sys.argv[0]+" <domain>";
-    sys.exit();
+import sys, json, requests, logging, os
+import censys.certificates
 
 API_URL = "https://censys.io/api/v1"
-UID = "CENSYS_UID"
-SECRET = "CENSYS_SECRET"
-params = {"query" : sys.argv[1]}
-subdomains = []
-print "[+] Connecting to Censys"
 
-res = requests.post(API_URL + "/search/certificates", json = params, auth=(UID, SECRET))
+logging.basicConfig()
+logger = logging.getLogger(__name__)
 
-if res.status_code != 200:
-    print "[-] error occurred: %s" % res.json()["error"]
-    sys.exit(1)
 
-print "[+] Parsing results"
+def close_to_domain(candidate, target_domain, domain_array):
+    if any(x in candidate for x in domain_array):
+        return True
+    return False
 
-payload = res.json()
-for r in payload['results']:
-    if "," in r["parsed.subject_dn"]:
-         pos = r["parsed.subject_dn"].find('CN=')+3
-    else:
-        pos = 3
-    tmp = r["parsed.subject_dn"][pos:]
-    if "," in tmp:
-        pos = tmp.find(",");
-        tmp = tmp[:pos]
-    if "." not in tmp:
-        continue;
-    subdomains.append(tmp)
 
-subdomains = set(subdomains)
+def show_censys_data(domain, uid, secret):
+    logger.info("Looking up {} on censys".format(domain))
+    domains = set()
+    domain_array = domain.split(".")
+    domain_array.pop()
 
-print "[+] "+str(len(subdomains))+" unique domains\n"
-for s in subdomains:
-      print  s;
+    certificates = censys.certificates.CensysCertificates(uid, secret)
+    fields = ["parsed.names"]
+
+    for c in certificates.search("parsed.names: %s" % domain, fields=fields):
+        for d in c["parsed.names"]:
+            if close_to_domain(d, domain, domain_array):
+                domains.add(d)
+
+    for d in domains:
+        print(d)
+
+
+def check_api_keys():
+    if os.environ.get("CENSYS_ID") is None or os.environ.get("CENSYS_SECRET") is None:
+        logger.warning("Missing CENSYS_ID or CENSYS_SECRET env var")
+        sys.exit(-1)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("usage {} <domain>".format(sys.argv[0]))
+        sys.exit(-1)
+    check_api_keys()
+    uid = os.environ.get("CENSYS_ID")
+    secret = os.environ.get("CENSYS_SECRET")
+
+    show_censys_data(sys.argv[1], uid, secret)
+
